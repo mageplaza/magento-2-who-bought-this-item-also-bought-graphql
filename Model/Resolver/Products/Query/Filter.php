@@ -24,12 +24,13 @@ namespace Mageplaza\AlsoBoughtGraphQl\Model\Resolver\Products\Query;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Layer\Resolver;
-use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as CatalogCollectionFactory;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResult;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\Framework\GraphQl\Query\FieldTranslator;
+use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder as SearchCriteriaBuilder;
+use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Mageplaza\AlsoBought\Model\ResourceModel\Associate\CollectionFactory;
 
 /**
@@ -68,77 +69,102 @@ class Filter
     protected $associateCollectionFactory;
 
     /**
+     * @var CatalogCollectionFactory
+     */
+    protected $productCollectionFactory;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
+    /**
      * Filter constructor.
      *
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param SearchResultFactory $searchResultFactory
      * @param Product $productDataProvider
      * @param Resolver $layerResolver
      * @param FieldTranslator $fieldTranslator
      * @param ProductRepositoryInterface $productRepository
      * @param CollectionFactory $associateCollectionFactory
+     * @param CatalogCollectionFactory $productCollectionFactory
      */
     public function __construct(
+        SearchCriteriaBuilder $searchCriteriaBuilder,
         SearchResultFactory $searchResultFactory,
         Product $productDataProvider,
         Resolver $layerResolver,
         FieldTranslator $fieldTranslator,
         ProductRepositoryInterface $productRepository,
-        CollectionFactory $associateCollectionFactory
+        CollectionFactory $associateCollectionFactory,
+        CatalogCollectionFactory $productCollectionFactory
     ) {
-        $this->searchResultFactory = $searchResultFactory;
-        $this->productDataProvider = $productDataProvider;
-        $this->fieldTranslator = $fieldTranslator;
-        $this->layerResolver = $layerResolver;
-        $this->productRepository     = $productRepository;
+        $this->searchResultFactory        = $searchResultFactory;
+        $this->productDataProvider        = $productDataProvider;
+        $this->fieldTranslator            = $fieldTranslator;
+        $this->layerResolver              = $layerResolver;
+        $this->productRepository          = $productRepository;
         $this->associateCollectionFactory = $associateCollectionFactory;
+        $this->productCollectionFactory   = $productCollectionFactory;
+        $this->searchCriteriaBuilder      = $searchCriteriaBuilder;
     }
 
     /**
-     * Filter catalog product data based off given search criteria
-     *
-     * @param SearchCriteriaInterface $searchCriteria
      * @param ResolveInfo $info
+     * @param array $args
      * @param bool $isSearch
      *
      * @return SearchResult
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getResult(
-        SearchCriteriaInterface $searchCriteria,
         ResolveInfo $info,
+        array $args,
         bool $isSearch = false
     ): SearchResult {
-        $fields = $this->getProductFields($info);
-        $products = $this->productDataProvider->getList($searchCriteria, $fields, $isSearch);
-        $productArray = [];
+        $fields         = $this->getProductFields($info);
+        $searchCriteria = $this->searchCriteriaBuilder->build('mpalsobought', $args);
+        $searchCriteria->setPageSize(100);
+        $searchCriteria->setCurrentPage(1);
+        $products   = $this->productDataProvider->getList($searchCriteria, $fields, $isSearch);
         $productIds = [];
         /** @var \Magento\Catalog\Model\Product $product */
         foreach ($products->getItems() as $product) {
             $productIds[] = $product->getId();
         }
+
         $associateProductIds = $this->associateCollectionFactory->create()
             ->getProductListByIds($productIds);
-        foreach ($associateProductIds as $productId) {
-            /** @var \Magento\Catalog\Model\Product $productModel */
-            $productModel = $this->productRepository->getById($productId);
-            $productArray[$productId] = $productModel->getData();
-            $productArray[$productId]['model'] = $product;
+        $productCollection   = $this->productCollectionFactory->create();
+        $productCollection->addFieldToFilter('entity_id', ['in' => $associateProductIds]);
+        $data           = $productCollection->getColumnValues('sku');
+        $args['filter'] = ['sku' => ['in' => $data]];
+        $searchCriteria = $this->searchCriteriaBuilder->build('mpalsobought', $args);
+        $searchCriteria->setPageSize($args['pageSize']);
+        $searchCriteria->setCurrentPage($args['currentPage']);
+        $productList  = $this->productDataProvider->getList($searchCriteria, $fields, $isSearch);
+        $productArray = [];
+        /** @var \Magento\Catalog\Model\Product $item */
+        foreach ($productList->getItems() as $item) {
+            $productArray[$item->getId()]          = $item->getData();
+            $productArray[$item->getId()]['model'] = $item;
         }
 
-        return $this->searchResultFactory->create(count($productArray), $productArray);
+        return $this->searchResultFactory->create($productList->getTotalCount(), $productArray);
     }
 
     /**
      * Return field names for all requested product fields.
      *
      * @param ResolveInfo $info
+     *
      * @return string[]
      */
-    protected function getProductFields(ResolveInfo $info) : array
+    protected function getProductFields(ResolveInfo $info): array
     {
         $fieldNames = [];
         foreach ($info->fieldNodes as $node) {
-            if ($node->name->value !== 'products') {
+            if ($node->name->value !== 'mpalsobought') {
                 continue;
             }
             foreach ($node->selectionSet->selections as $selection) {

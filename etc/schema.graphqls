@@ -8,59 +8,6 @@ type Query {
     @resolver(class: "Mageplaza\\AlsoBoughtGraphQl\\Model\\Resolver\\Products") @doc(description: "The products query searches for products that match the criteria specified in the search and filter attributes") @cache(cacheIdentity: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\Identity")
 }
 
-input ProductFilterInput @doc(description: "ProductFilterInput defines the filters to be used in the search. A filter contains at least one attribute, a comparison operator, and the value that is being searched for.") {
-    name: FilterTypeInput @doc(description: "The product name. Customers use this name to identify the product.")
-    sku: FilterTypeInput @doc(description: "A number or code assigned to a product to identify the product, options, price, and manufacturer")
-    price: FilterTypeInput @doc(description: "The price of an item")
-    manufacturer: FilterTypeInput @doc(description: "A number representing the product's manufacturer")
-    category_id: FilterTypeInput @doc(description: "Category ID the product belongs to")
-    or: ProductFilterInput @doc(description: "The keyword required to perform a logical OR comparison")
-}
-
-type Products @doc(description: "The Products object is the top-level object returned in a product search") {
-    items: [ProductInterface] @doc(description: "An array of products that match the specified search criteria")
-    total_count: Int @doc(description: "The number of products returned")
-    page_info: SearchResultPageInfo @doc(description: "An object that includes the page_info and currentPage values specified in the query")
-}
-
-interface ProductInterface @typeResolver(class: "Magento\\CatalogGraphQl\\Model\\ProductInterfaceTypeResolverComposite") @doc(description: "The ProductInterface contains attributes that are common to all types of products. Note that descriptions may not be available for custom and EAV attributes.") {
-    id: Int @doc(description: "The ID number assigned to the product") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\EntityIdToId")
-    name: String @doc(description: "The product name. Customers use this name to identify the product.")
-    sku: String @doc(description: "A number or code assigned to a product to identify the product, options, price, and manufacturer")
-    description: ComplexTextValue @doc(description: "Detailed information about the product. The value can include simple HTML tags.") @resolver(class: "\\Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductComplexTextAttribute")
-    short_description: ComplexTextValue @doc(description: "A short description of the product. Its use depends on the theme.") @resolver(class: "\\Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductComplexTextAttribute")
-    special_price: Float @doc(description: "The discounted price of the product")
-    special_from_date: String @doc(description: "The beginning date that a product has a special price")
-    special_to_date: String @doc(description: "The end date that a product has a special price")
-    attribute_set_id: Int @doc(description: "The attribute set assigned to the product")
-    meta_title: String @doc(description: "A string that is displayed in the title bar and tab of the browser and in search results lists")
-    meta_keyword: String @doc(description: "A comma-separated list of keywords that are visible only to search engines")
-    meta_description: String @doc(description: "A brief overview of the product for search results listings, maximum 255 characters")
-    image: ProductImage @doc(description: "The relative path to the main image on the product page") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage")
-    small_image: ProductImage @doc(description: "The relative path to the small image, which is used on catalog pages") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage")
-    thumbnail: ProductImage @doc(description: "The relative path to the product's thumbnail image") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage")
-    new_from_date: String @doc(description: "The beginning date for new product listings, and determines if the product is featured as a new product") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\NewFromTo")
-    new_to_date: String @doc(description: "The end date for new product listings") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\NewFromTo")
-    tier_price: Float @doc(description: "The price when tier pricing is in effect and the items purchased threshold has been reached")
-    options_container: String @doc(description: "If the product has multiple options, determines where they appear on the product page")
-    created_at: String @doc(description: "Timestamp indicating when the product was created")
-    updated_at: String @doc(description: "Timestamp indicating when the product was updated")
-    country_of_manufacture: String @doc(description: "The product's country of origin")
-    type_id: String @doc(description: "One of simple, virtual, bundle, downloadable, grouped, or configurable")
-    websites: [Website] @doc(description: "An array of websites in which the product is available") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\Websites")
-    product_links: [ProductLinksInterface] @doc(description: "An array of ProductLinks objects") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductLinks")
-    tier_prices: [ProductTierPrices] @doc(description: "An array of ProductTierPrices objects") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\TierPrices")
-    price: ProductPrices @doc(description: "A ProductPrices object, indicating the price of an item") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\Price")
-    gift_message_available: String @doc(description: "Indicates whether a gift message is available")
-    manufacturer: Int @doc(description: "A number representing the product's manufacturer")
-    canonical_url: String @doc(description: "Canonical URL") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\CanonicalUrl")
-}
-
-type ProductImage @doc(description: "Product image information. Contains image relative path, URL and label") {
-    url: String @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Url")
-    label: String @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Label")
-}
-
 type Price @doc(description: "The Price object defines the price of a product as well as any tax-related adjustments.") {
     amount: Money @doc(description: "The price of a product plus a three-letter currency code")
     adjustments: [PriceAdjustment] @doc(description: "An array that provides information about tax, weee, or weee_tax adjustments")
@@ -109,4 +56,86 @@ type ProductTierPrices @doc(description: "The ProductTierPrices object defines a
     value: Float @doc(description: "The price of the fixed price item")
     percentage_value: Float @doc(description: "The percentage discount of the item")
     website_id: Float @doc(description: "The ID assigned to the website")
+}
+
+interface ProductInterface @typeResolver(class: "Magento\\CatalogGraphQl\\Model\\ProductInterfaceTypeResolverComposite") @doc(description: "The ProductInterface contains attributes that are common to all types of products. Note that descriptions may not be available for custom and EAV attributes.") {
+    id: Int @doc(description: "The ID number assigned to the product") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\EntityIdToId")
+    name: String @doc(description: "The product name. Customers use this name to identify the product.")
+    sku: String @doc(description: "A number or code assigned to a product to identify the product, options, price, and manufacturer")
+    description: ComplexTextValue @doc(description: "Detailed information about the product. The value can include simple HTML tags.") @resolver(class: "\\Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductComplexTextAttribute")
+    short_description: ComplexTextValue @doc(description: "A short description of the product. Its use depends on the theme.") @resolver(class: "\\Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductComplexTextAttribute")
+    special_price: Float @doc(description: "The discounted price of the product")
+    special_from_date: String @doc(description: "The beginning date that a product has a special price")
+    special_to_date: String @doc(description: "The end date that a product has a special price")
+    attribute_set_id: Int @doc(description: "The attribute set assigned to the product")
+    meta_title: String @doc(description: "A string that is displayed in the title bar and tab of the browser and in search results lists")
+    meta_keyword: String @doc(description: "A comma-separated list of keywords that are visible only to search engines")
+    meta_description: String @doc(description: "A brief overview of the product for search results listings, maximum 255 characters")
+    image: ProductImage @doc(description: "The relative path to the main image on the product page") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage")
+    small_image: ProductImage @doc(description: "The relative path to the small image, which is used on catalog pages") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage")
+    thumbnail: ProductImage @doc(description: "The relative path to the product's thumbnail image") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage")
+    new_from_date: String @doc(description: "The beginning date for new product listings, and determines if the product is featured as a new product") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\NewFromTo")
+    new_to_date: String @doc(description: "The end date for new product listings") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\NewFromTo")
+    tier_price: Float @doc(description: "The price when tier pricing is in effect and the items purchased threshold has been reached")
+    options_container: String @doc(description: "If the product has multiple options, determines where they appear on the product page")
+    created_at: String @doc(description: "Timestamp indicating when the product was created")
+    updated_at: String @doc(description: "Timestamp indicating when the product was updated")
+    country_of_manufacture: String @doc(description: "The product's country of origin")
+    type_id: String @doc(description: "One of simple, virtual, bundle, downloadable, grouped, or configurable")
+    websites: [Website] @doc(description: "An array of websites in which the product is available") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\Websites")
+    product_links: [ProductLinksInterface] @doc(description: "An array of ProductLinks objects") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductLinks")
+    tier_prices: [ProductTierPrices] @doc(description: "An array of ProductTierPrices objects") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\TierPrices")
+    price: ProductPrices @doc(description: "A ProductPrices object, indicating the price of an item") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\Price")
+    gift_message_available: String @doc(description: "Indicates whether a gift message is available")
+    manufacturer: Int @doc(description: "A number representing the product's manufacturer")
+    canonical_url: String @doc(description: "Canonical URL") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\CanonicalUrl")
+}
+
+type ProductImage @doc(description: "Product image information. Contains image relative path, URL and label") {
+    url: String @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Url")
+    label: String @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Label")
+}
+
+type Products @doc(description: "The Products object is the top-level object returned in a product search") {
+    items: [ProductInterface] @doc(description: "An array of products that match the specified search criteria")
+    page_info: SearchResultPageInfo @doc(description: "An object that includes the page_info and currentPage values specified in the query")
+    total_count: Int @doc(description: "The number of products returned")
+}
+
+input ProductFilterInput @doc(description: "ProductFilterInput defines the filters to be used in the search. A filter contains at least one attribute, a comparison operator, and the value that is being searched for.") {
+    name: FilterTypeInput @doc(description: "The product name. Customers use this name to identify the product.")
+    sku: FilterTypeInput @doc(description: "A number or code assigned to a product to identify the product, options, price, and manufacturer")
+    description: FilterTypeInput @doc(description: "Detailed information about the product. The value can include simple HTML tags.")
+    short_description: FilterTypeInput @doc(description: "A short description of the product. Its use depends on the theme.")
+    price: FilterTypeInput @doc(description: "The price of an item")
+    special_price: FilterTypeInput @doc(description: "The discounted price of the product. Do not include the currency code.")
+    special_from_date: FilterTypeInput @doc(description: "The beginning date that a product has a special price")
+    special_to_date: FilterTypeInput @doc(description: "The end date that a product has a special price")
+    weight: FilterTypeInput @doc(description: "The weight of the item, in units defined by the store")
+    manufacturer: FilterTypeInput @doc(description: "A number representing the product's manufacturer")
+    meta_title: FilterTypeInput @doc(description: "A string that is displayed in the title bar and tab of the browser and in search results lists")
+    meta_keyword: FilterTypeInput @doc(description: "A comma-separated list of keywords that are visible only to search engines")
+    meta_description: FilterTypeInput @doc(description: "A brief overview of the product for search results listings, maximum 255 characters")
+    image: FilterTypeInput @doc(description: "The relative path to the main image on the product page")
+    small_image: FilterTypeInput @doc(description: "The relative path to the small image, which is used on catalog pages")
+    thumbnail: FilterTypeInput @doc(description: "The relative path to the product's thumbnail image")
+    tier_price: FilterTypeInput @doc(description: "The price when tier pricing is in effect and the items purchased threshold has been reached")
+    news_from_date: FilterTypeInput @doc(description: "The beginning date for new product listings, and determines if the product is featured as a new product")
+    news_to_date: FilterTypeInput @doc(description: "The end date for new product listings")
+    custom_layout_update: FilterTypeInput @doc(description: "XML code that is applied as a layout update to the product page")
+    min_price: FilterTypeInput @doc(description:"The numeric minimal price of the product. Do not include the currency code.")
+    max_price: FilterTypeInput @doc(description:"The numeric maximal price of the product. Do not include the currency code.")
+    category_id: FilterTypeInput @doc(description: "Category ID the product belongs to")
+    options_container: FilterTypeInput @doc(description: "If the product has multiple options, determines where they appear on the product page")
+    required_options: FilterTypeInput @doc(description: "Indicates whether the product has required options")
+    has_options: FilterTypeInput @doc(description: "Indicates whether additional attributes have been created for the product")
+    image_label: FilterTypeInput @doc(description: "The label assigned to a product image")
+    small_image_label: FilterTypeInput @doc(description: "The label assigned to a product's small image")
+    thumbnail_label: FilterTypeInput @doc(description: "The label assigned to a product's thumbnail image")
+    created_at: FilterTypeInput @doc(description: "Timestamp indicating when the product was created")
+    updated_at: FilterTypeInput @doc(description: "Timestamp indicating when the product was updated")
+    country_of_manufacture: FilterTypeInput @doc(description: "The product's country of origin")
+    custom_layout: FilterTypeInput @doc(description: "The name of a custom layout")
+    gift_message_available: FilterTypeInput @doc(description: "Indicates whether a gift message is available")
+    or: ProductFilterInput @doc(description: "The keyword required to perform a logical OR comparison")
 }
