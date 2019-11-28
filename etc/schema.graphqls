@@ -1,0 +1,112 @@
+
+type Query {
+    mpalsobought (
+        filter: ProductFilterInput @doc(description: "Identifies which product attributes to search for and return."),
+        pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
+        currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1.")
+    ): Products
+    @resolver(class: "Mageplaza\\AlsoBoughtGraphQl\\Model\\Resolver\\Products") @doc(description: "The products query searches for products that match the criteria specified in the search and filter attributes") @cache(cacheIdentity: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\Identity")
+}
+
+input ProductFilterInput @doc(description: "ProductFilterInput defines the filters to be used in the search. A filter contains at least one attribute, a comparison operator, and the value that is being searched for.") {
+    name: FilterTypeInput @doc(description: "The product name. Customers use this name to identify the product.")
+    sku: FilterTypeInput @doc(description: "A number or code assigned to a product to identify the product, options, price, and manufacturer")
+    price: FilterTypeInput @doc(description: "The price of an item")
+    manufacturer: FilterTypeInput @doc(description: "A number representing the product's manufacturer")
+    category_id: FilterTypeInput @doc(description: "Category ID the product belongs to")
+    or: ProductFilterInput @doc(description: "The keyword required to perform a logical OR comparison")
+}
+
+type Products @doc(description: "The Products object is the top-level object returned in a product search") {
+    items: [ProductInterface] @doc(description: "An array of products that match the specified search criteria")
+    total_count: Int @doc(description: "The number of products returned")
+    page_info: SearchResultPageInfo @doc(description: "An object that includes the page_info and currentPage values specified in the query")
+}
+
+interface ProductInterface @typeResolver(class: "Magento\\CatalogGraphQl\\Model\\ProductInterfaceTypeResolverComposite") @doc(description: "The ProductInterface contains attributes that are common to all types of products. Note that descriptions may not be available for custom and EAV attributes.") {
+    id: Int @doc(description: "The ID number assigned to the product") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\EntityIdToId")
+    name: String @doc(description: "The product name. Customers use this name to identify the product.")
+    sku: String @doc(description: "A number or code assigned to a product to identify the product, options, price, and manufacturer")
+    description: ComplexTextValue @doc(description: "Detailed information about the product. The value can include simple HTML tags.") @resolver(class: "\\Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductComplexTextAttribute")
+    short_description: ComplexTextValue @doc(description: "A short description of the product. Its use depends on the theme.") @resolver(class: "\\Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductComplexTextAttribute")
+    special_price: Float @doc(description: "The discounted price of the product")
+    special_from_date: String @doc(description: "The beginning date that a product has a special price")
+    special_to_date: String @doc(description: "The end date that a product has a special price")
+    attribute_set_id: Int @doc(description: "The attribute set assigned to the product")
+    meta_title: String @doc(description: "A string that is displayed in the title bar and tab of the browser and in search results lists")
+    meta_keyword: String @doc(description: "A comma-separated list of keywords that are visible only to search engines")
+    meta_description: String @doc(description: "A brief overview of the product for search results listings, maximum 255 characters")
+    image: ProductImage @doc(description: "The relative path to the main image on the product page") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage")
+    small_image: ProductImage @doc(description: "The relative path to the small image, which is used on catalog pages") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage")
+    thumbnail: ProductImage @doc(description: "The relative path to the product's thumbnail image") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage")
+    new_from_date: String @doc(description: "The beginning date for new product listings, and determines if the product is featured as a new product") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\NewFromTo")
+    new_to_date: String @doc(description: "The end date for new product listings") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\NewFromTo")
+    tier_price: Float @doc(description: "The price when tier pricing is in effect and the items purchased threshold has been reached")
+    options_container: String @doc(description: "If the product has multiple options, determines where they appear on the product page")
+    created_at: String @doc(description: "Timestamp indicating when the product was created")
+    updated_at: String @doc(description: "Timestamp indicating when the product was updated")
+    country_of_manufacture: String @doc(description: "The product's country of origin")
+    type_id: String @doc(description: "One of simple, virtual, bundle, downloadable, grouped, or configurable")
+    websites: [Website] @doc(description: "An array of websites in which the product is available") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\Websites")
+    product_links: [ProductLinksInterface] @doc(description: "An array of ProductLinks objects") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductLinks")
+    tier_prices: [ProductTierPrices] @doc(description: "An array of ProductTierPrices objects") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\TierPrices")
+    price: ProductPrices @doc(description: "A ProductPrices object, indicating the price of an item") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\Price")
+    gift_message_available: String @doc(description: "Indicates whether a gift message is available")
+    manufacturer: Int @doc(description: "A number representing the product's manufacturer")
+    canonical_url: String @doc(description: "Canonical URL") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\CanonicalUrl")
+}
+
+type ProductImage @doc(description: "Product image information. Contains image relative path, URL and label") {
+    url: String @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Url")
+    label: String @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Label")
+}
+
+type Price @doc(description: "The Price object defines the price of a product as well as any tax-related adjustments.") {
+    amount: Money @doc(description: "The price of a product plus a three-letter currency code")
+    adjustments: [PriceAdjustment] @doc(description: "An array that provides information about tax, weee, or weee_tax adjustments")
+}
+
+type PriceAdjustment @doc(description: "The PricedAdjustment object defines the amount of money to apply as an adjustment, the type of adjustment to apply, and whether the item is included or excluded from the adjustment.") {
+    amount: Money @doc(description: "The amount of the price adjustment and its currency code")
+    code: PriceAdjustmentCodesEnum @doc(description: "Indicates whether the adjustment involves tax, weee, or weee_tax")
+    description: PriceAdjustmentDescriptionEnum @doc(description: "Indicates whether the entity described by the code attribute is included or excluded from the adjustment")
+}
+
+enum PriceAdjustmentCodesEnum @doc(description: "Note: This enumeration contains values defined in modules other than the Catalog module.") {
+}
+
+enum PriceAdjustmentDescriptionEnum @doc(description: "This enumeration states whether a price adjustment is included or excluded.") {
+    INCLUDED
+    EXCLUDED
+}
+
+enum PriceTypeEnum @doc(description: "This enumeration the price type.") {
+    FIXED
+    PERCENT
+    DYNAMIC
+}
+
+type ProductPrices @doc(description: "The ProductPrices object contains the regular price of an item, as well as its minimum and maximum prices. Only composite products, which include bundle, configurable, and grouped products, can contain a minimum and maximum price.") {
+    minimalPrice: Price @doc(description: "The lowest possible final price for all the options defined within a composite product. If you are specifying a price range, this would be the from value.")
+    maximalPrice: Price @doc(description: "The highest possible final price for all the options defined within a composite product. If you are specifying a price range, this would be the to value.")
+    regularPrice: Price @doc(description: "The base price of a product.")
+}
+
+type ProductLinks implements ProductLinksInterface @doc(description: "ProductLinks is an implementation of ProductLinksInterface.") {
+}
+
+interface ProductLinksInterface @typeResolver(class: "Magento\\CatalogGraphQl\\Model\\ProductLinkTypeResolverComposite") @doc(description:"ProductLinks contains information about linked products, including the link type and product type of each item.") {
+    sku: String @doc(description: "The identifier of the linked product")
+    link_type: String @doc(description: "One of related, associated, upsell, or crosssell")
+    linked_product_sku: String @doc(description: "The SKU of the linked product")
+    linked_product_type: String @doc(description: "The type of linked product (simple, virtual, bundle, downloadable, grouped, configurable)")
+    position: Int @doc(description: "The position within the list of product links")
+}
+
+type ProductTierPrices @doc(description: "The ProductTierPrices object defines a tier price, which is a quantity discount offered to a specific customer group.") {
+    customer_group_id: String @doc(description: "The ID of the customer group")
+    qty: Float @doc(description: "The number of items that must be purchased to qualify for tier pricing")
+    value: Float @doc(description: "The price of the fixed price item")
+    percentage_value: Float @doc(description: "The percentage discount of the item")
+    website_id: Float @doc(description: "The ID assigned to the website")
+}
