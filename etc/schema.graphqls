@@ -92,8 +92,8 @@ interface ProductInterface @typeResolver(class: "Magento\\CatalogGraphQl\\Model\
 }
 
 type ProductImage @doc(description: "Product image information. Contains image relative path, URL and label") {
-    url: String @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Url")
-    label: String @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Label")
+    url: String @resolver(class: "Mageplaza\\AlsoBoughtGraphQl\\Model\\Resolver\\Product\\ProductImage\\Url")
+    label: String @resolver(class: "Mageplaza\\AlsoBoughtGraphQl\\Model\\Resolver\\Product\\ProductImage\\Label")
 }
 
 type Products @doc(description: "The Products object is the top-level object returned in a product search") {
