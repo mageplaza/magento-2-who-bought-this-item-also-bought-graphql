@@ -136,21 +136,18 @@ class Filter
         $associateProductIds = $this->associateCollectionFactory->create()
             ->getProductListByIds($productIds);
         $productCollection   = $this->productCollectionFactory->create();
-        $productCollection->addFieldToFilter('entity_id', ['in' => $associateProductIds]);
-        $data           = $productCollection->getColumnValues('sku');
-        $args['filter'] = ['sku' => ['in' => $data]];
-        $searchCriteria = $this->searchCriteriaBuilder->build('mpalsobought', $args);
-        $searchCriteria->setPageSize($args['pageSize']);
-        $searchCriteria->setCurrentPage($args['currentPage']);
-        $productList  = $this->productDataProvider->getList($searchCriteria, $fields, $isSearch);
+        $productCollection->addAttributeToSelect('*')->addFieldToFilter('entity_id', ['in' => $associateProductIds]);
+        $total = $productCollection->getSize();
+        $productCollection->setPageSize($args['pageSize'])->setCurPage($args['currentPage']);
         $productArray = [];
         /** @var \Magento\Catalog\Model\Product $item */
-        foreach ($productList->getItems() as $item) {
-            $productArray[$item->getId()]          = $item->getData();
-            $productArray[$item->getId()]['model'] = $item;
+        foreach ($productCollection->getItems() as $item) {
+            $productId = $item->getId();
+            $productArray[$productId]          = $item->getData();
+            $productArray[$productId]['model'] = $item;
         }
 
-        return $this->searchResultFactory->create($productList->getTotalCount(), $productArray);
+        return $this->searchResultFactory->create($total, $productArray);
     }
 
     /**

@@ -25,10 +25,11 @@ namespace Mageplaza\AlsoBoughtGraphQl\Model\Resolver\Product\ProductImage;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ResourceModel\Product as ProductResourceModel;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Label
@@ -39,15 +40,24 @@ class Label implements ResolverInterface
     /**
      * @var ProductResourceModel
      */
-    private $productResource;
+    protected $productResource;
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
 
     /**
+     * Label constructor.
+     *
      * @param ProductResourceModel $productResource
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
-        ProductResourceModel $productResource
+        ProductResourceModel $productResource,
+        StoreManagerInterface $storeManager
     ) {
         $this->productResource = $productResource;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -72,16 +82,13 @@ class Label implements ResolverInterface
         /** @var Product $product */
         $product = $value['model'];
         $productId = (int)$product->getEntityId();
-        /** @var StoreInterface $store */
-        $store = $context->getExtensionAttributes()->getStore();
-        $storeId = (int)$store->getId();
         if (!isset($value['image_type'])) {
-            return $this->getAttributeValue($productId, 'name', $storeId);
+            return $this->getAttributeValue($productId, 'name');
         }
         $imageType = $value['image_type'];
-        $imageLabel = $this->getAttributeValue($productId, $imageType . '_label', $storeId);
-        if ($imageLabel == null) {
-            $imageLabel = $this->getAttributeValue($productId, 'name', $storeId);
+        $imageLabel = $this->getAttributeValue($productId, $imageType . '_label');
+        if ($imageLabel === null) {
+            $imageLabel = $this->getAttributeValue($productId, 'name');
         }
 
         return $imageLabel;
@@ -92,11 +99,14 @@ class Label implements ResolverInterface
      *
      * @param int $productId
      * @param string $attributeCode
-     * @param int $storeId
+     *
      * @return null|string Null if attribute value is not exists
+     * @throws NoSuchEntityException
      */
-    private function getAttributeValue(int $productId, string $attributeCode, int $storeId): ?string
+    private function getAttributeValue(int $productId, string $attributeCode): ?string
     {
+        $storeId = $this->storeManager->getStore()->getId();
+
         $value = $this->productResource->getAttributeRawValue($productId, $attributeCode, $storeId);
         return is_array($value) && empty($value) ? null : $value;
     }

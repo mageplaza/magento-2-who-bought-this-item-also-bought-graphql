@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Mageplaza\AlsoBoughtGraphQl\Model\Resolver\Product\ProductImage;
 
+use Exception;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\ImageFactory;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Image\Placeholder as PlaceholderProvider;
@@ -96,7 +97,7 @@ class Url implements ResolverInterface
      * @param string $imageType
      * @param string|null $imagePath
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     private function getImageUrl(string $imageType, ?string $imagePath): string
     {
