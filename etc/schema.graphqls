@@ -89,6 +89,7 @@ interface ProductInterface @typeResolver(class: "Magento\\CatalogGraphQl\\Model\
     gift_message_available: String @doc(description: "Indicates whether a gift message is available")
     manufacturer: Int @doc(description: "A number representing the product's manufacturer")
     canonical_url: String @doc(description: "Canonical URL") @resolver(class: "Magento\\CatalogGraphQl\\Model\\Resolver\\Product\\CanonicalUrl")
+    mpalsobought: [ProductInterface] @doc(description: "A list of also bought products") @resolver(class: "Mageplaza\\AlsoBoughtGraphQl\\Model\\Resolver\\Product\\AlsoBought")
 }
 
 type ProductImage @doc(description: "Product image information. Contains image relative path, URL and label") {
