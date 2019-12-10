@@ -1,2 +1,2 @@
-# Who Bought This Also Bought Graph Ql
+# Who Bought This Also Bought GraphQl
 
