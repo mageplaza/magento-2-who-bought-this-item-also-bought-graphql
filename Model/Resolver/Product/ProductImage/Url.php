@@ -41,6 +41,7 @@ class Url implements ResolverInterface
      * @var ImageFactory
      */
     private $productImageFactory;
+
     /**
      * @var PlaceholderProvider
      */
@@ -80,6 +81,7 @@ class Url implements ResolverInterface
         $product = $value['model'];
         if (isset($value['image_type'])) {
             $imagePath = $product->getData($value['image_type']);
+
             return $this->getImageUrl($value['image_type'], $imagePath);
         }
         if (isset($value['file'])) {
@@ -88,6 +90,7 @@ class Url implements ResolverInterface
 
             return $image->getUrl();
         }
+
         return [];
     }
 
@@ -96,6 +99,7 @@ class Url implements ResolverInterface
      *
      * @param string $imageType
      * @param string|null $imagePath
+     *
      * @return string
      * @throws Exception
      */

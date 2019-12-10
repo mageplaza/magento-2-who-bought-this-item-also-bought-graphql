@@ -142,7 +142,7 @@ class Filter
         $productArray = [];
         /** @var \Magento\Catalog\Model\Product $item */
         foreach ($productCollection->getItems() as $item) {
-            $productId = $item->getId();
+            $productId                         = $item->getId();
             $productArray[$productId]          = $item->getData();
             $productArray[$productId]['model'] = $item;
         }

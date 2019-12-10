@@ -41,6 +41,7 @@ class Label implements ResolverInterface
      * @var ProductResourceModel
      */
     protected $productResource;
+
     /**
      * @var StoreManagerInterface
      */
@@ -57,7 +58,7 @@ class Label implements ResolverInterface
         StoreManagerInterface $storeManager
     ) {
         $this->productResource = $productResource;
-        $this->storeManager = $storeManager;
+        $this->storeManager    = $storeManager;
     }
 
     /**
@@ -70,7 +71,6 @@ class Label implements ResolverInterface
         array $value = null,
         array $args = null
     ) {
-
         if (isset($value['label'])) {
             return $value['label'];
         }
@@ -80,12 +80,12 @@ class Label implements ResolverInterface
         }
 
         /** @var Product $product */
-        $product = $value['model'];
-        $productId = (int)$product->getEntityId();
+        $product   = $value['model'];
+        $productId = (int) $product->getEntityId();
         if (!isset($value['image_type'])) {
             return $this->getAttributeValue($productId, 'name');
         }
-        $imageType = $value['image_type'];
+        $imageType  = $value['image_type'];
         $imageLabel = $this->getAttributeValue($productId, $imageType . '_label');
         if ($imageLabel === null) {
             $imageLabel = $this->getAttributeValue($productId, 'name');
@@ -108,6 +108,7 @@ class Label implements ResolverInterface
         $storeId = $this->storeManager->getStore()->getId();
 
         $value = $this->productResource->getAttributeRawValue($productId, $attributeCode, $storeId);
+
         return is_array($value) && empty($value) ? null : $value;
     }
 }

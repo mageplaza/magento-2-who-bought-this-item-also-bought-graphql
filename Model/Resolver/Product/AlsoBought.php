@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Mageplaza\AlsoBoughtGraphQl\Model\Resolver\Product;
 
+use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as CatalogCollectionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Config\Element\Field;
@@ -56,7 +57,7 @@ class AlsoBought implements ResolverInterface
         CatalogCollectionFactory $productCollectionFactory
     ) {
         $this->associateCollectionFactory = $associateCollectionFactory;
-        $this->productCollectionFactory = $productCollectionFactory;
+        $this->productCollectionFactory   = $productCollectionFactory;
     }
 
     /**
@@ -73,15 +74,15 @@ class AlsoBought implements ResolverInterface
             throw new LocalizedException(__('"model" value should be specified'));
         }
 
-        $productArray = [];
-        $productIds = [$value['entity_id']];
+        $productArray        = [];
+        $productIds          = [$value['entity_id']];
         $associateProductIds = $this->associateCollectionFactory->create()
             ->getProductListByIds($productIds);
         $productCollection   = $this->productCollectionFactory->create();
         $productCollection->addAttributeToSelect('*')->addFieldToFilter('entity_id', ['in' => $associateProductIds]);
-        /** @var \Magento\Catalog\Model\Product $item */
+        /** @var Product $item */
         foreach ($productCollection->getItems() as $item) {
-            $productId = $item->getId();
+            $productId                         = $item->getId();
             $productArray[$productId]          = $item->getData();
             $productArray[$productId]['model'] = $item;
         }
