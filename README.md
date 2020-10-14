@@ -1,4 +1,4 @@
-# Who Bought This Item Also Bought GraphQl
+# Magento 2 Who Bought This Item Also Bought GraphQL / PWA
 
 ## How to install
 Run the following command in Magento 2 root folder:
