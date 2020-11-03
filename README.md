@@ -22,7 +22,7 @@ To perform GraphQL queries in Magento, please do the following requirements:
 - Use Magento 2.3.x or higher. Set your site to [developer mode](https://www.mageplaza.com/devdocs/enable-disable-developer-mode-magento-2.html).
 - Set GraphQL endpoint as `http://<magento2-server>/graphql` in url box, click **Set endpoint**. 
 (e.g. `http://dev.site.com/graphql`)
-- To view the queries that the **Mageplaza Shop By Brand GraphQL** extension supports, you can look in `Docs > Query` in the right corner
+- To view the queries that the **Mageplaza Who Bought This Item Also Bought GraphQL** extension supports, you can look in `Docs > Query` in the right corner
 
 ## 3. Devdocs
 
