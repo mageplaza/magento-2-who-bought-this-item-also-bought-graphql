@@ -1,5 +1,7 @@
 # Magento 2 Who Bought This Item Also Bought GraphQL / PWA
 
+**Magento Who Bought This Also Bought GraphQL is a part of Mageplaza Who Bought This Also This extension; this supports for PWA Studio.** 
+
 [Mageplaza Who Bought This Also Bought for Magento 2](https://www.mageplaza.com/magento-2-who-bought-this-also-bought/) is an effective solution to increase sales for an online store by showcasing and encouraging customers to buy related products. 
 
 Based on the customers’ purchase history, the extension will automatically select the related products and display them on the page your customers are viewing. So the purchase history record plays a vital role in this method. It decides how frequent and diverse the suggested products are showcased to customers. 
@@ -7,9 +9,6 @@ Based on the customers’ purchase history, the extension will automatically sel
 It’s easy to configure at the backend to make your products appear as attractive options besides the products customers have purchased. You can display suggested products at the top or bottom of many different places, such as product pages, category pages, and shopping carts. 
 
 Also, at the backend, you can select the layout to organize the related products in a slider or multiple lines. The related products will be displayed along with essential details, such as price, ratings, and “Add to cart” button. It makes the related products block display in sync more with the current page's content and easy to catch customers’ eyes. 
-
-Notably, **Magento Who Bought This Also Bought GraphQL is a part of Mageplaza Who Bought This Also This extension; this supports for PWA Studio.** 
-
 
 ## 1. How to install
 Run the following command in Magento 2 root folder:
