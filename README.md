@@ -1,4 +1,4 @@
-# Magento 2 Who Bought This Item Also Bought GraphQL / PWA
+# Magento 2 Who Bought This Item Also Bought GraphQL
 
 **Magento Who Bought This Also Bought GraphQL is a part of Mageplaza Who Bought This Also This extension; this supports for PWA Studio.** 
 
